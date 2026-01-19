@@ -72,3 +72,10 @@ ln -s /path/to/dr/skills/deep-research ~/.claude/skills/
 ## Version History
 
 - **v1.0**: Initial release with GoT, adaptive refinement, perspectives, HyDE, Reflexion
+- **v1.1**: P1 optimizations based on academic research
+  - XML tag restructuring for better Claude instruction following
+  - Lost-in-middle mitigation (critical rules at start AND end)
+  - Extended thinking triggers (`think hard`, `think harder`, `ultrathink`)
+  - Toned down emphatic language to prevent overtriggering
+  - Simplified agent roles (8 → 4 core roles)
+  - Added self-contrast before reflection
