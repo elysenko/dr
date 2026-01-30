@@ -317,9 +317,23 @@ Store in: `./RESEARCH/[project]/07_working_notes/evidence_passages.json`
 5. Resume with adjusted frontier
 
 <parallel_research>
-Fire searches for 2-3 subquestions simultaneously when independent.
-Fetch multiple promising sources at once.
-Only serialize when results from one inform another.
+Execute ALL subquestions in parallel using Task agents (up to 7 concurrent):
+
+For each subquestion (3-7 total), spawn a Task agent:
+- subagent_type: "general-purpose"
+- Each agent: HyDE expansion → WebSearch → WebFetch → Extract → Score
+- Return JSON with sources, evidence_passages, gaps_identified
+
+Execution Rules:
+- Spawn all subquestion agents simultaneously (max 7)
+- Each agent works independently with its own context
+- Orchestrator waits for ALL agents before Phase 4
+- Merge evidence into shared evidence_passages.json
+- Deduplicate overlapping sources by URL
+
+Only serialize when:
+- One subquestion explicitly depends on another's findings
+- Budget constraints require prioritization (Type A/B)
 </parallel_research>
 
 <gate phase="3">
@@ -341,6 +355,27 @@ For each C1 claim:
 2. Filter by quality (C1 requires B+ minimum)
 3. Classify each passage: SUPPORTS / CONTRADICTS / NEUTRAL
 4. Apply independence rule
+
+### Parallel C1 Claim Verification
+
+When multiple C1 claims require verification, process them in parallel:
+
+1. Extract all C1 claims from synthesis notes
+2. For each claim, spawn a verification Task agent (max 7 parallel):
+   - Agent runs 3 self-consistency paths internally:
+     - Path 1: Direct evidence search
+     - Path 2: Inverse query (disproving evidence)
+     - Path 3: Cross-reference check
+   - Agent performs independence verification
+   - Returns: verification_status, confidence_score, supporting_sources
+3. Wait for all agents to complete
+4. Aggregate results into evidence ledger
+5. Flag claims where paths disagree for Orchestrator review
+
+**Execution Notes:**
+- Spawn up to 7 claim verification agents simultaneously
+- For reports with >7 C1 claims, process in batches
+- Each agent handles one claim completely
 
 ### Contradiction Triage
 
@@ -411,12 +446,22 @@ Read `~/.claude/reflection_memory.json`. Identify:
 
 ### Step 2: Run QA Checks
 
-1. Citation match audit (no drift)
+1. Citation match audit (no drift) — **run in parallel batches**
 2. Passage-level verification
 3. Claim coverage (every C1 has evidence + independence)
 4. Numeric audit (units, denominators, timeframes)
 5. Scope audit (nothing out-of-scope, no gaps)
 6. Uncertainty labeling
+
+**Parallel Citation Verification (for check #1):**
+Citations are independent—verify in parallel:
+- Extract all citations from report (typical: 30-100)
+- Batch into groups of 10 (Claude's Task limit)
+- Spawn verification agents per batch:
+  - Check URL status (LIVE/DEAD/PAYWALL)
+  - Verify quote accuracy (EXACT/PARAPHRASE/MISMATCH)
+  - Validate claim support (SUPPORTS/DRIFT/CONTRADICTS)
+- Merge results into `09_qa/citation_audit.md`
 
 ### Step 3: Reflect on Failures
 
