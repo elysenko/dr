@@ -167,12 +167,29 @@ Site-targeted queries are a **supplement** to broad search — restricting prima
 
 Use only when initial broad results lack authoritative sources.
 
+### Low-Quality Domain Exclusion
+
+Use the `blocked_domains` WebSearch parameter on ALL searches to filter noise sources.
+This is server-side enforced and more reliable than `-site:` query operators.
+
+Default: `blocked_domains: ["pinterest.com", "quora.com"]`
+
+Extend dynamically: if results surface content-farm aggregators, add them for subsequent searches.
+Remove selectively: if the research topic involves user-generated content on a blocked domain.
+
 ### HyDE Multi-Framing
 
 Before searching, generate hypothetical answers in three framings to expand search vocabulary:
 1. **Academic**: "A peer-reviewed study would conclude that [topic] involves..."
 2. **Practitioner**: "Based on industry experience, [topic] typically works by..."
 3. **Skeptical**: "Critics argue that assumptions about [topic] overlook..."
+
+### Query Operators (Refinement Rounds Only)
+
+In refinement rounds — not initial broad searches — enhance queries with:
+- `"exact phrase"` for discovered terminology from A/B sources
+- `-term` to disambiguate when results mix unrelated topics
+- `filetype:pdf` for papers/reports (academic and policy topics only)
 
 ### Parallel Execution
 
@@ -227,10 +244,14 @@ For each subquestion (3-7 total):
          - Analyze: what's well-covered vs. missing?
          - Extract domain terminology, author names, cited references from A/B sources
          - Generate refined queries using learned vocabulary
+         - Use "exact phrases" in quotes for specific technical terms, paper titles,
+           or named concepts discovered in A/B sources
          - WebSearch + MMR select + WebFetch new results
          - SATURATION CHECK: <10% new unique URLs → exit early
          - EARLY EXIT: 2+ A/B sources + no significant gaps → stop
-      6. If results lack authoritative sources, add 1-2 site-targeted queries
+      6. If results lack authoritative sources, add 1-2 site-targeted queries.
+         For academic topics, also try filetype:pdf to surface papers and reports.
+         If filetype: returns irrelevant results, drop the operator and retry.
       7. Flag if no A/B sources found after all rounds
 
       Example: Initial query "does multi-agent verification improve accuracy"
