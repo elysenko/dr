@@ -1,0 +1,19 @@
+id,url,title,grade,type,date,used_for
+S01,https://bm25s.github.io/,BM25S Official Benchmarks,A,benchmark,2024,SQ1 - speed/accuracy comparison
+S02,https://github.com/dorianbrown/rank_bm25,rank_bm25 GitHub Repository,B,source_code,2022,SQ1 - implementation details
+S03,https://huggingface.co/blog/xhluca/bm25s,BM25S HuggingFace Blog,B,technical_blog,2024,SQ1 - library comparison
+S04,https://developer.nvidia.com/blog/finding-the-best-chunking-strategy-for-accurate-ai-responses/,NVIDIA Chunking Strategy Benchmark,A,benchmark,2025,SQ2 - chunk size evidence
+S05,https://research.trychroma.com/evaluating-chunking,Chroma Chunking Evaluation,A,benchmark,2024,SQ2 - chunk size evidence
+S06,https://arxiv.org/html/2505.21700v2,Multi-Dataset Chunk Size Analysis,A,academic_paper,2025,SQ2 - chunk size evidence
+S07,https://www.anthropic.com/news/contextual-retrieval,Anthropic Contextual Retrieval,A,official_blog,2024,SQ4/SQ5/SQ7 - hybrid approach and top-K
+S08,https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/file/65b9eea6e1cc6bb9f0cd2a47751a186f-Paper-round2.pdf,BEIR Benchmark Paper (NeurIPS),A,academic_paper,2021,SQ3 - BM25 vs alternatives
+S09,https://docs.crawl4ai.com/core/fit-markdown/,Crawl4AI BM25ContentFilter Docs,B,documentation,2025,SQ7 - production implementation
+S10,https://python.langchain.com/docs/integrations/retrievers/bm25/,LangChain BM25Retriever Docs,B,documentation,2025,SQ7 - production implementation
+S11,https://www.pinecone.io/learn/chunking-strategies/,Pinecone Chunking Strategies,B,technical_guide,2024,SQ2 - chunking overview
+S12,https://www.elastic.co/blog/practical-bm25-part-2-the-bm25-algorithm-and-its-variables,Elastic BM25 Variables Guide,B,technical_blog,2023,SQ1/SQ3 - BM25 parameters
+S13,https://aclanthology.org/2021.naacl-main.241.pdf,COIL: Lexical Match in IR (NAACL),A,academic_paper,2021,SQ6 - failure modes
+S14,https://www.dataquest.io/blog/metadata-filtering-and-hybrid-search-for-vector-databases/,Dataquest Hybrid Search Analysis,C,technical_blog,2024,SQ6 - BM25 failure evidence
+S15,https://towardsai.net/p/artificial-intelligence/enhance-your-llm-agents-with-bm25-lightweight-retrieval-that-works,BM25 for LLM Agents,C,technical_blog,2025,SQ1/SQ5 - lightweight approach
+S16,https://www.emergentmind.com/topics/bm25-retrieval,BM25 Retrieval Methods Survey,B,survey,2025,SQ3/SQ5 - overview
+S17,https://unstructured.io/blog/chunking-for-rag-best-practices,Unstructured Chunking Best Practices,B,technical_guide,2025,SQ2 - overlap guidance
+S18,https://haystack.deepset.ai/blog/query-expansion,Haystack Query Expansion Guide,B,technical_blog,2024,SQ5 - query expansion
