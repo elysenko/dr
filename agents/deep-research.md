@@ -188,6 +188,11 @@ For each subquestion (3-7 total):
       Project: {project_name} | Type: {type_letter} | Max refinement rounds: {max_rounds}
       Evidence path: ./RESEARCH/{project_name}/07_working_notes/
 
+      Search behavior (apply throughout):
+      - VERIFY: For any key claim you find, search for contradicting evidence too
+      - DIVERSIFY: Generate 3+ phrasings per search using different vocabulary
+      - REFLECT after each round: "What do I know? What's missing? What should I search next?"
+
       Steps:
       1. Generate HyDE expansion (academic, practitioner, skeptical framings)
       2. WebSearch: original query + HyDE variants (broad, no site restriction)
