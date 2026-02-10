@@ -214,6 +214,15 @@ For each subquestion (3-7 total):
          `echo '{"query":"<subquestion>","passages":<bm25_output>,"top_n":20}' | python scripts/rerank.py`
          Falls back to BM25-only output automatically if reranker unavailable.
          Extract key passages from output, score quality (A-E)
+      4c. CITATION EXPANSION (academic topics only):
+         After fetching, check if any URLs are from academic domains
+         (arxiv.org, doi.org, pubmed, semanticscholar.org, dl.acm.org, biorxiv.org, medrxiv.org).
+         If yes, run citation expansion on up to 3 seed URLs:
+         `echo '{"urls":["<academic_url1>","<academic_url2>"],"subquestion":"<subquestion>","top_n":5}' | python scripts/citation_expand.py`
+         This queries Semantic Scholar for papers that cite or are cited by the seed papers,
+         scores them by citation count + recency + keyword relevance, and returns top 5.
+         Add returned papers (their S2 URLs or open access PDFs) to the fetch queue.
+         Skip for non-academic topics. Falls back to empty results if API unavailable.
       5. ITERATIVE REFINEMENT (up to {max_rounds} rounds):
          - Analyze: what's well-covered vs. missing?
          - Extract domain terminology, author names, cited references from A/B sources
