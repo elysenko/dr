@@ -204,7 +204,11 @@ For each subquestion (3-7 total):
             Diversity = different domain, source type, perspective from already-selected
             Pick top 5-7 URLs maximizing both relevance and diversity
          d. Reserve 2 fetches for refinement rounds
-      4. WebFetch selected URLs, extract key passages, score quality (A-E)
+      4. WebFetch selected URLs. For long pages (>15 paragraphs), pre-filter
+         with BM25: `echo '{"query":"<subquestion>","content":"<page>"}' | python scripts/bm25_filter.py`
+         This returns the top-10 most relevant passages (~200 words each),
+         cutting context noise by 60-80%. For short pages, use full content.
+         Extract key passages from filtered output, score quality (A-E)
       5. ITERATIVE REFINEMENT (up to {max_rounds} rounds):
          - Analyze: what's well-covered vs. missing?
          - Extract domain terminology, author names, cited references from A/B sources
