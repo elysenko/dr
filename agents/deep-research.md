@@ -205,10 +205,15 @@ For each subquestion (3-7 total):
             Pick top 5-7 URLs maximizing both relevance and diversity
          d. Reserve 2 fetches for refinement rounds
       4. WebFetch selected URLs. For long pages (>15 paragraphs), pre-filter
-         with BM25: `echo '{"query":"<subquestion>","content":"<page>"}' | python scripts/bm25_filter.py`
-         This returns the top-10 most relevant passages (~200 words each),
+         with BM25: `echo '{"query":"<subquestion>","content":"<page>","k":K}' | python scripts/bm25_filter.py`
+         Use K=50 if RERANKER_API_KEY is set (more candidates for reranker), else K=10.
+         This returns the top-K most relevant passages (~200 words each),
          cutting context noise by 60-80%. For short pages, use full content.
-         Extract key passages from filtered output, score quality (A-E)
+      4b. OPTIONAL RERANKER (Type C/D, when RERANKER_API_KEY is set):
+         Pipe BM25 output through the API reranker for +5-15% passage relevance:
+         `echo '{"query":"<subquestion>","passages":<bm25_output>,"top_n":20}' | python scripts/rerank.py`
+         Falls back to BM25-only output automatically if reranker unavailable.
+         Extract key passages from output, score quality (A-E)
       5. ITERATIVE REFINEMENT (up to {max_rounds} rounds):
          - Analyze: what's well-covered vs. missing?
          - Extract domain terminology, author names, cited references from A/B sources
