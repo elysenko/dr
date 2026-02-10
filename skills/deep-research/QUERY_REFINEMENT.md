@@ -1,28 +1,37 @@
-# Adaptive Query Refinement for /dr
+# Adaptive Query Refinement for /dr (Enhanced)
 
 ## Overview
 
-This document describes the **adaptive refinement** system integrated into Phase 1 of `/dr`. Instead of a rigid question list, refinement now:
+This document describes the **enhanced adaptive refinement** system integrated into Phase 1 of `/dr`. The system now focuses on **generative questioning**—questions that expand the user's thinking and surface unknown unknowns, not just capture logistics.
 
-1. **Classifies the query target** (web, codebase, or mixed)
-2. **Does quick reconnaissance** before asking questions
-3. **Selects relevant questions** based on topic and clarity score
-4. **Skips irrelevant questions** to reduce user fatigue
+### Core Philosophy
 
----
+Traditional refinement asks: "What format do you want?"
+Enhanced refinement asks: "What would surprise you if the research revealed it?"
 
-## The Problem with Rigid Refinement
-
-Old approach asked ALL 8 questions for ANY vague query:
-- Geographic focus for "how does TCP work" (irrelevant)
-- Citation strictness for "best pizza in Brooklyn" (absurd)
-- Timeframe for "explain our auth system" (doesn't apply)
-
-Result: User fatigue, wasted interaction, questions that don't inform research.
+The goal is to help users discover what they actually need to know, including things they didn't realize they needed.
 
 ---
 
-## The Solution: Adaptive Refinement
+## The Problem with Surface-Level Refinement
+
+The old approach focused on administrative questions:
+- Geographic focus (often irrelevant)
+- Citation strictness (premature optimization)
+- Output format (putting cart before horse)
+
+What it missed:
+- **Prior beliefs** that might bias how research is received
+- **Decision stakes** that determine how thorough to be
+- **Unknown unknowns** the user hasn't thought to ask about
+- **Stakeholder context** that shapes what evidence is needed
+- **Constraints vs preferences** that determine trade-off space
+
+Result: Research that technically answers the question but doesn't move the user forward.
+
+---
+
+## The Solution: Five-Phase Adaptive Refinement
 
 ```
 User: "/dr [vague query]"
@@ -35,326 +44,410 @@ Step 0: Clarity check (score 1-20)
 └──────┬───────┴──────┬───────┘
        │              │
        ▼              ▼
-  Standard       Adaptive
+  Standard       Enhanced
   scoping        refinement
                       │
                       ▼
-              Step 1: Classify target
-              (Web / Codebase / Mixed)
+              Phase 1: Core Understanding
+              (The real question, prior beliefs, stakes)
                       │
                       ▼
-              Step 2: Quick recon
-              (WebSearch OR Glob+Grep+Read)
+              Phase 2: Unknown Unknowns
+              (Surprises, assumptions, blind spots)
                       │
                       ▼
-              Step 3: Select relevant questions
-              (based on target + score + recon)
+              Phase 3: Stakeholder & Constraints
+              (Who cares, dealbreakers vs preferences)
                       │
                       ▼
-              Step 4: Ask (2-7 questions)
+              Phase 4: Evidence Requirements
+              (Confidence level, evidence types)
                       │
                       ▼
-              Step 5: Confirm
+              Phase 5: Practical Scoping
+              (Boundaries, depth, format—LAST)
+                      │
+                      ▼
+              Confirm & Launch
 ```
 
 ---
 
-## Step 1: Classify Query Target
+## Phase 1: Core Understanding (Always Ask)
 
-Before reconnaissance, determine what the query is about:
+These questions establish the foundation. Never skip them.
 
-| Target Type | Indicators | Recon Method |
-|-------------|------------|--------------|
-| **Web/External** | General topics, industry trends, "what is X", comparisons | WebSearch |
-| **Local Codebase** | "this codebase", "our code", "how does X work here", file paths | Glob + Grep + Read |
-| **Mixed** | "how does our X compare to", "best practices for our Y" | Both |
+### 1.1 The Real Question
+
+Don't accept the first framing. The stated question often isn't the real question.
+
+**Prompt:**
+```
+You asked about: "[ORIGINAL_QUERY]"
+
+Before we dive in:
+- What triggered this question? What happened that made you want to research this now?
+- If you had a perfect answer, what would you DO differently tomorrow?
+```
+
+**Why this matters:** "Should we use Kubernetes?" might really be "How do I convince my CTO we've outgrown Heroku?" The trigger and intended action reveal the actual need.
+
+### 1.2 Current Mental Model
+
+Understand what they already believe so research can challenge or confirm appropriately.
+
+**Prompt:**
+```
+What's your current understanding or hypothesis?
+- What do you think is likely true?
+- How confident are you (gut check: 20%? 60%? 90%)?
+- Where did this belief come from?
+```
+
+**Why this matters:** Research that ignores prior beliefs often gets rejected. If someone is 90% confident in something wrong, research needs to directly address their sources.
+
+### 1.3 The Stakes
+
+Decision context determines research depth and evidence standards.
+
+**Prompt:**
+```
+What decision does this inform?
+□ High-stakes, hard to reverse (major investment, architecture, hire/fire)
+□ Medium-stakes, somewhat reversible (product feature, vendor selection)
+□ Low-stakes, easily reversible (process tweak, tool trial)
+□ No decision—just learning
+
+What's the cost of being WRONG?
+□ Catastrophic (company-ending, safety-critical)
+□ Expensive (significant money/time lost)
+□ Annoying (rework, delays, but recoverable)
+□ Minimal (easy to course-correct)
+```
+
+**Why this matters:** "Best database for my side project" vs "Best database for our core product" require completely different research depth.
 
 ---
 
-## Step 2: Topic Reconnaissance
+## Phase 2: Discovering Unknown Unknowns (High Value)
 
-### For Web/External Topics
+These questions surface things the user hasn't thought to ask about. This is where refinement adds the most value.
 
+### 2.1 Surprise Calibration
+
+**Prompt:**
 ```
-WebSearch: "[topic] overview" OR "[topic] guide"
-```
-
-From top 2-3 results, extract:
-- **Key facets**: What sub-areas exist?
-- **Decision points**: What do people typically need to choose?
-- **Domain type**: Technical | Strategic | Market | Personal | Academic
-- **Time-sensitivity**: Rapidly evolving | Stable | Historical
-
-### For Codebase Topics
-
-```
-Glob: Find relevant files (e.g., "**/auth*", "**/pipeline*")
-Grep: Search for key terms, patterns
-Read: Skim 2-3 most relevant files
+What would SURPRISE you if the research revealed it?
+- What finding would make you say "I didn't expect that"?
+- What's something that, if true, would change your entire approach?
 ```
 
-Extract:
-- **Architecture**: What components/modules exist?
-- **Key files**: Where is the core logic?
-- **Patterns used**: Frameworks, conventions
-- **Entry points**: Where to start exploring?
+**Why this matters:** This reveals the user's implicit expectations, which research can then validate or challenge.
 
-### For Mixed Topics
+### 2.2 Assumption Surfacing
 
-Do both — understand local implementation AND external best practices.
+**Prompt:**
+```
+What are you assuming to be true that MIGHT NOT BE?
+- Industry "common knowledge" that might be outdated
+- Things "everyone knows" that you've never verified
+- Constraints you're treating as fixed that might be flexible
+```
+
+**Why this matters:** The most valuable research often challenges assumptions the user didn't know they had.
+
+### 2.3 Blind Spot Probing
+
+**Prompt:**
+```
+What might you be missing?
+- Who has tried this before and failed? Do you know why?
+- What would a skeptic say is wrong with your current thinking?
+- What's the contrarian view you haven't seriously considered?
+```
+
+**Why this matters:** Explicitly inviting contrary evidence prevents confirmation bias in the research.
 
 ---
 
-## Step 3: Select Relevant Questions
+## Phase 3: Stakeholder & Constraint Mapping
 
-### Refinement Tiers
+Ask these for decision-oriented research. Skip for pure learning.
 
-| Clarity Score | Tier | Max Questions |
-|---------------|------|---------------|
-| 8-11 | Light | 2-3 |
-| 4-7 | Medium | 3-5 |
-| < 4 | Full | 5-7 |
+### 3.1 Who Else Cares?
 
-### Question Relevance Matrix
+**Prompt:**
+```
+Who are the stakeholders?
+- Who will this research need to convince?
+- Who might push back? What would change their mind?
+- Whose approval/buy-in do you need?
+```
 
-**Universal (all targets):**
+**Why this matters:** Research for "convincing my CFO" needs different evidence than research for "my own understanding."
 
-| Question | Ask When |
-|----------|----------|
-| Core Question | ALWAYS |
-| Which Angle/Facet | Recon found multiple facets |
-| Depth Preference | ALWAYS |
-| Output Format | Medium+ |
+### 3.2 Constraints vs. Preferences
 
-**Web/External Only:**
+**Prompt:**
+```
+Let's separate dealbreakers from nice-to-haves:
 
-| Question | Ask When | Skip When |
-|----------|----------|-----------|
-| Decision Context | Light+ | Obviously personal |
-| Audience | Medium+ | Personal/casual |
-| Geographic Focus | Market, regulatory topics | Pure technical |
-| Timeframe | Evolving fields, markets | Stable concepts |
-| Source Constraints | Full only | Casual |
-| Citation Strictness | Full only | Personal |
-| Definition of Done | Full only | Simple |
+HARD CONSTRAINTS (non-negotiable):
+- Budget ceiling?
+- Timeline deadline?
+- Technical requirements that cannot be compromised?
+- Regulatory/legal must-haves?
 
-**Codebase Only:**
+PREFERENCES (would trade off if needed):
+- Ideal but flexible requirements?
+- Things you'd sacrifice for cost/time?
+```
 
-| Question | Ask When | Skip When |
-|----------|----------|-----------|
-| Which Modules | Recon found multiple areas | Single module obvious |
-| Explanation Goal | Always | - |
-| Output Type | Always | - |
-| Include Tests/Configs | Medium+ | Simple explanation |
+**Why this matters:** Research that ignores hard constraints wastes time. Research that treats preferences as constraints misses options.
+
+### 3.3 Alternative Paths
+
+**Prompt:**
+```
+What alternatives are you comparing?
+- Is this "should we do X?" or "X vs Y vs Z?"
+- What's the default if you do nothing?
+- What's the "good enough" option you might settle for?
+```
+
+**Why this matters:** Research for "should we migrate to AWS?" is different if the alternative is Azure vs staying on-prem vs shutting down.
 
 ---
 
-## Step 4: Question Templates
+## Phase 4: Confidence & Evidence Requirements
 
-### Universal Questions
+Ask for important decisions. Skip for casual exploration.
 
-**Core Question**
+### 4.1 How Certain Do You Need to Be?
+
+**Prompt:**
 ```
-You said: "[ORIGINAL_QUERY]"
-
-Based on my quick lookup, [TOPIC] covers several areas:
-- [Facet 1 from recon]
-- [Facet 2 from recon]
-- [Facet 3 from recon]
-
-What's your specific question?
-```
-
-**Which Angle** (if multiple facets)
-```
-Which aspect interests you most?
-□ [Facet 1] - [description]
-□ [Facet 2] - [description]
-□ [Facet 3] - [description]
-□ All of the above
-□ Other: ___________
+What confidence level do you need?
+□ Directional (70%+ confident in general direction)
+□ Solid (85%+ confident, can defend the position)
+□ High conviction (95%+ confident, betting significant resources)
+□ Near-certainty (99%+ confident, safety/legal/critical)
 ```
 
-**Depth Preference**
+**Why this matters:** Over-researching low-stakes decisions wastes time. Under-researching high-stakes decisions is dangerous.
+
+### 4.2 Evidence Standards
+
+**Prompt:**
 ```
-How deep should we go?
-□ Quick overview (key points only)
-□ Standard analysis (thorough but focused)
-□ Deep dive (comprehensive)
-□ Exhaustive (leave no stone unturned)
+What evidence would convince you?
+□ Expert consensus / authoritative sources
+□ Quantitative data / studies / benchmarks
+□ Case studies / real-world examples
+□ First-principles reasoning
+□ Multiple independent sources agreeing
+
+What evidence would you REJECT?
+- Sources you don't trust?
+- Argument types that don't work for your audience?
 ```
 
-### Web-Specific Questions
+**Why this matters:** Some audiences need academic citations, others need practitioner testimonials, others need data.
 
-**Decision Context**
-```
-What will this research inform?
-□ Investment/financial decision
-□ Technology/product selection
-□ Strategy/planning
-□ Learning/understanding
-□ Compliance/risk assessment
-□ Other: ___________
-```
+### 4.3 Dealing with Uncertainty
 
-**Audience**
+**Prompt:**
 ```
-Who will consume this?
-□ Executive (high-level insights)
-□ Technical (implementation details)
-□ Mixed
-□ Just me
+If research is inconclusive:
+□ Tell me "we don't know" and explain why
+□ Give best estimate with confidence intervals
+□ Present competing views and let me decide
+□ Recommend how to get better information
 ```
 
-**Geographic Focus** (only if relevant)
+**Why this matters:** Sets expectations about how to handle ambiguity.
+
+---
+
+## Phase 5: Practical Scoping
+
+Ask these LAST, and only when relevant. The mistake is asking these first.
+
+### 5.1 Boundaries
+
+Only if topic has geographic, temporal, or industry dimensions:
+
+**Prompt:**
 ```
-Geographic scope?
-□ Global
-□ North America
-□ Europe
-□ Asia-Pacific
-□ Specific: ___________
+Scope boundaries:
+- Geographic: [Global / Regional / Specific]
+- Temporal: [Historical / Current / Forward-looking]
+- Industry: [Cross-industry / Specific sector]
+- Scale: [Enterprise / SMB / Consumer / All]
 ```
 
-**Timeframe** (only if relevant)
+### 5.2 Depth vs. Breadth
+
+**Prompt:**
 ```
-Time period?
-□ Historical analysis
-□ Current state
-□ Future projections
-□ Specific period: ___________
+Given limited time, prefer:
+□ Broader coverage, less depth (survey the landscape)
+□ Deeper analysis, narrower focus (master one aspect)
+□ Balanced (reasonable coverage with depth on key areas)
+
+What deserves MOST depth? What can be covered lightly?
 ```
 
-### Codebase-Specific Questions
+### 5.3 Output & Format
 
-**Which Modules**
-```
-Based on my scan, this codebase has:
-- [Module 1]: [description]
-- [Module 2]: [description]
-- [Module 3]: [description]
+Only if user has specific delivery needs:
 
-Which areas should I focus on?
-□ All of the above
-□ Specific: ___________
+**Prompt:**
 ```
-
-**Explanation Goal**
-```
-What do you want to understand?
-□ High-level architecture (how pieces fit together)
-□ Specific implementation (how X works)
-□ Data flow (how data moves through)
-□ Extension points (how to add features)
-□ Debugging (why X behaves this way)
-```
-
-**Output Type**
-```
-What format would be most useful?
-□ Written explanation (markdown)
-□ Architecture diagram (mermaid/ASCII)
-□ Annotated code walkthrough
-□ Quick verbal summary
+How will you use the output?
+□ Read myself → detailed document fine
+□ Present to others → needs to be presentation-ready
+□ Reference later → needs good structure
+□ Make specific decision → needs clear recommendation
+□ Defend a position → needs strong sourcing
 ```
 
 ---
 
-## Step 5: Adaptive Confirmation
+## Adaptive Question Selection
 
-Only include sections that were actually asked:
+### By Query Type
+
+| Query Type | Must Ask | Should Ask | Skip |
+|------------|----------|------------|------|
+| **Learning** | 1.1, 1.2, 2.1 | 2.2, 5.2 | 3.x, 4.x |
+| **Decision** | 1.1-1.3, 3.1-3.3 | 2.1-2.3, 4.1-4.2 | 5.x (unless needed) |
+| **Comparison** | 1.1, 1.3, 3.3, 4.1 | 2.1, 3.2 | Others as needed |
+| **Risk/Due Diligence** | 1.1-1.3, 2.1-2.3, 4.x | 3.1-3.2 | 5.x (unless needed) |
+| **Exploratory** | 1.1, 1.2, 2.1-2.3 | 5.2 | 3.x, 4.x |
+
+### By Clarity Score
+
+| Score | Tier | Questions |
+|-------|------|-----------|
+| 10-12 | Light | 3-5 from Phase 1-2 |
+| 5-9 | Medium | 5-8 from Phase 1-3 |
+| < 5 | Full | 8-12 across all phases |
+
+---
+
+## Question Combination Templates
+
+### Learning/Understanding Query
+
+Combine into single AskUserQuestion:
 
 ```
+1. What triggered your interest in [TOPIC]? What would you do differently with the answer?
+2. What do you currently believe about this? (Confidence: low/medium/high?)
+3. What would surprise you if the research revealed it?
+4. [If recon found multiple facets]: Which aspect interests you most?
+5. Broader coverage or deeper focus?
+```
+
+### Decision Support Query
+
+```
+1. What triggered this? What will you DO with a perfect answer?
+2. What's your current hypothesis? How confident are you?
+3. What's at stake? Cost of being wrong?
+4. What assumptions might be wrong? What would a skeptic say?
+5. Who needs to be convinced? What evidence would convince them?
+6. What alternatives are you comparing? What's the default?
+7. What constraints are non-negotiable vs. nice-to-have?
+```
+
+### Risk/Due Diligence Query
+
+```
+1. What triggered this investigation? What action does it inform?
+2. What's your current assessment? Where did that come from?
+3. What's the worst case if your current view is wrong?
+4. What assumptions are you making? What might you be missing?
+5. Who has tried this and failed? What would a skeptic say?
+6. What confidence level do you need? What evidence would convince you?
+7. What sources would you reject? What argument types don't work?
+```
+
+---
+
+## Anti-Patterns
+
+1. **Format before substance** - Don't ask "bullet points or paragraphs?" before understanding what they need
+2. **Accepting first framing** - "Should we use X?" is rarely the real question
+3. **Skipping prior beliefs** - Research that ignores what they already believe often gets rejected
+4. **Equal weighting** - Some questions need exploration, others need a checkbox
+5. **Constraints without alternatives** - Constraints only matter relative to trade-offs
+6. **Geographic questions for technical topics** - "What region?" for "how does TCP work?"
+7. **Citation questions for exploratory research** - Premature optimization
+
+---
+
+## Output Template
+
+After refinement, produce a research contract:
+
+```markdown
 ### RESEARCH QUESTION
-[Synthesized from answers]
+[One clear sentence—often reframed from original]
 
-### CONTEXT
-[Only if asked: Decision context, Audience]
+### UNDERLYING NEED
+[What decision/action this enables; what triggered the question]
+
+### CURRENT HYPOTHESIS
+[What user believes; confidence; source]
+→ Research should: [confirm/challenge/expand] this view
+
+### STAKES & REVERSIBILITY
+[Decision type; cost of being wrong; urgency]
+
+### KEY UNCERTAINTIES TO RESOLVE
+1. [Specific unknown that would most change thinking]
+2. [Second most important uncertainty]
+3. [Third if applicable]
+
+### STAKEHOLDERS & CONSTRAINTS
+- Convince: [Who]
+- Hard constraints: [Non-negotiable]
+- Preferences: [Would trade off]
+
+### COMPARISON FRAME
+- Alternatives: [X vs Y vs Z]
+- Default: [What happens if do nothing]
+- Good enough: [Acceptable fallback]
+
+### EVIDENCE REQUIREMENTS
+- Confidence needed: [Level]
+- Convincing evidence: [Types]
+- Reject: [Sources/arguments to avoid]
 
 ### SCOPE
-[Only if asked: Geography, Timeframe, Modules, Include/Exclude]
-
-### CONSTRAINTS
-[Depth is always included; sources only if asked]
-
-### OUTPUT
-[Format, Citations - only if asked]
+- Deep dive: [Areas for depth]
+- Cover lightly: [Areas to skim]
+- Exclude: [Out of scope]
+- Depth: [Quick/Standard/Deep/Exhaustive]
 
 ### SUCCESS CRITERIA
-[Only if asked; otherwise inferred]
+[What makes this research valuable]
 
----
-Does this capture it? I can adjust before we begin.
+### SURPRISES TO INVESTIGATE
+- [Contrarian view to explore]
+- [Assumption to test]
+- [Blind spot to probe]
 ```
-
----
-
-## Examples
-
-### Example 1: "AI safety" (Web, score 4, Full tier)
-
-**Recon:** Technical alignment, governance, x-risk, near-term harms
-
-**Questions asked:**
-1. Core → Which aspect?
-2. Angle → Alignment vs governance vs x-risk?
-3. Decision context → Learning vs professional?
-4. Depth → Standard
-5. Timeframe → Current state vs history?
-
-**Skipped:** Geographic, Citations, Output format
-
----
-
-### Example 2: "best CI/CD tool" (Web, score 7, Medium tier)
-
-**Recon:** GitHub Actions, GitLab CI, Jenkins; team size matters; cloud vs self-hosted
-
-**Questions asked:**
-1. Angle → Cloud-native vs self-hosted?
-2. Decision context → Tech selection (implied)
-3. Depth → Standard
-4. Team size? (domain-specific)
-
-**Skipped:** Geographic, Timeframe, Audience, Citations
-
----
-
-### Example 3: "how does auth work in this codebase" (Codebase, score 6, Medium tier)
-
-**Recon:** Found `src/auth/`, JWT tokens, Express middleware
-
-**Questions asked:**
-1. Which modules → Middleware? User model? Token handling?
-2. Explanation goal → Architecture vs implementation vs data flow?
-3. Depth → Standard
-4. Output type → Doc vs diagram vs walkthrough?
-
-**Skipped:** Tests/configs, Definition of done
-
----
-
-### Example 4: "how does our caching compare to best practices" (Mixed, score 5, Medium tier)
-
-**Recon (local):** Redis in `src/cache/`, TTL patterns
-**Recon (web):** Write-through, cache-aside, thundering herd
-
-**Questions asked:**
-1. Core → What aspects to compare?
-2. Which aspects → Performance? Consistency? Scalability?
-3. Decision context → Improvement vs documentation vs audit?
-4. Depth → Standard
-5. Output → Comparison table vs narrative?
-
-**Skipped:** Geographic, Timeframe, Citations
 
 ---
 
 ## What Happens to /dr-refine?
 
-**Still available** as optional standalone skill for users who want to:
+Still available as standalone skill for users who want to:
 - Refine a question WITHOUT starting research
 - Explore what they want before committing
 - Generate a structured prompt to modify
 
-But now `/dr` handles vague queries automatically — `/dr-refine` is no longer required.
+But now `/dr` handles vague queries automatically with enhanced refinement—`/dr-refine` is optional but uses the same enhanced question framework.

@@ -207,40 +207,9 @@ Persist learnings across research projects:
 
 ```json
 {
-  "version": "1.0",
-  "last_updated": "2026-01-19",
-  "failure_patterns": [
-    {
-      "pattern_id": "FP-001",
-      "category": "CD",
-      "description": "Dropping qualifiers when citing statistics",
-      "frequency": 7,
-      "first_seen": "2025-09-15",
-      "last_seen": "2026-01-19",
-      "prevention_rule": "Always preserve: 'up to', 'approximately', 'under X conditions', 'in Y contexts'",
-      "example_failures": ["QA-2024-127", "QA-2024-189", "QA-2025-012"]
-    },
-    {
-      "pattern_id": "FP-002",
-      "category": "IV",
-      "description": "News articles citing same press release counted as independent",
-      "frequency": 4,
-      "first_seen": "2025-10-22",
-      "last_seen": "2026-01-10",
-      "prevention_rule": "For breaking news, trace all articles to original source before counting independence",
-      "example_failures": ["QA-2024-201", "QA-2025-003"]
-    },
-    {
-      "pattern_id": "FP-003",
-      "category": "NE",
-      "description": "Mixing fiscal year and calendar year data",
-      "frequency": 3,
-      "first_seen": "2025-11-05",
-      "last_seen": "2026-01-15",
-      "prevention_rule": "Always note FY vs CY; normalize to consistent timeframe or flag explicitly",
-      "example_failures": ["QA-2024-245", "QA-2025-008"]
-    }
-  ],
+  "version": "2.0",
+  "last_updated": null,
+  "failure_patterns": [],
   "prevention_checklist": [
     "Preserve all statistical qualifiers (up to, approximately, under conditions)",
     "Trace news articles to original source for independence check",
@@ -249,12 +218,14 @@ Persist learnings across research projects:
     "Confirm units match when combining data from multiple sources"
   ],
   "stats": {
-    "total_failures_logged": 47,
-    "most_common_category": "CD",
-    "improvement_trend": "23% reduction in CD failures over last 10 projects"
+    "total_failures_logged": 0,
+    "most_common_category": null,
+    "improvement_trend": null
   }
 }
 ```
+
+> **Note**: Failure patterns are populated from actual research project QA runs. The initial bootstrap is empty — patterns accumulate organically through real usage.
 
 ### Using Reflection Memory
 

@@ -1,5 +1,7 @@
 # Advanced Retrieval Enhancement for /dr
 
+> **STATUS: ASPIRATIONAL** — ColBERT/RAGatouille integration described below is NOT implemented in the current runtime. The current pipeline uses WebSearch + WebFetch only. HyDE query expansion IS implemented in `agents/deep-research-v4.md` Phase 3. This document describes a future enhancement.
+
 ## Overview
 
 This document describes the **Advanced Retrieval** enhancement using ColBERT (via RAGatouille) and HyDE (Hypothetical Document Embeddings). This addresses a key deficit: basic keyword search misses semantically relevant content.

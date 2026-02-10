@@ -8,56 +8,25 @@ argument-hint: [vague research topic]
 
 Refine this vague question into a well-structured research prompt, then automatically launch deep research: $ARGUMENTS
 
-## Step 1: Ask clarifying questions to capture:
+## Step 1: Run the v2.0 refinement process
 
-1. **Core Question**: What is the one-sentence research question?
-2. **Decision/Use-case**: What will this research inform? (investment, strategy, learning, etc.)
-3. **Audience**: Who will consume this? (Executive, Technical, Mixed)
-4. **Scope**:
-   - Geographic focus (Global, US, EU, specific country?)
-   - Timeframe (Historical? Current state? Future projections?)
-   - What to include/exclude?
-5. **Constraints**:
-   - Required sources (academic only? include news?)
-   - Banned sources (avoid vendor content? exclude specific outlets?)
-   - Budget/depth preference (Quick overview vs exhaustive analysis)
-6. **Output Format**: Report, bullet summary, data pack, slides outline?
-7. **Citation Strictness**: Full academic citations vs light sourcing?
-8. **Definition of Done**: What would make this research "complete"?
+Follow the full `/dr-refine` process from `skills/deep-research/QUERY_REFINEMENT.md`:
+1. **Phase 0**: Diagnose query type (Learning/Decision/Validation/Exploration/Due Diligence)
+2. **Phase 1**: Surface the real question (action test, trigger, reframe)
+3. **Phase 2**: Surface beliefs (reflective probe, confidence calibration, surprise elicitation)
+4. **Phase 3**: Pre-mortem (structured assumption surfacing)
+5. **Phase 4**: Generative expansion (sub-questions, adjacent questions, contrarian angles)
+6. **Phase 5**: Stakes & constraints (conditional on query type)
+7. **Phase 6**: Synthesize into a structured research contract
 
-## Step 2: After gathering answers, construct the refined prompt:
+Use the adaptive matrix from QUERY_REFINEMENT.md to skip phases based on query type.
+
+## Step 2: Automatically launch deep research
+
+After the user confirms the refined research contract, immediately invoke the deep-research agent:
 
 ```
-### RESEARCH QUESTION
-[One clear sentence]
-
-### CONTEXT
-[What this informs, who will use it]
-
-### SCOPE
-- Geography: [X]
-- Timeframe: [X]
-- Include: [X]
-- Exclude: [X]
-
-### CONSTRAINTS
-- Required sources: [X]
-- Avoid: [X]
-- Depth: [Quick/Standard/Deep/Exhaustive]
-
-### OUTPUT FORMAT
-[What deliverable looks like]
-
-### SUCCESS CRITERIA
-[How we know we're done]
+Task(subagent_type="deep-research", prompt="[refined research contract from Step 1]")
 ```
 
-## Step 3: Automatically launch deep research
-
-Do NOT ask for confirmation. Immediately invoke the deep-research agent with the refined prompt using the Task tool:
-
-```
-Task(subagent_type="deep-research", prompt="[refined research prompt from Step 2]")
-```
-
-The research will proceed through all phases automatically.
+Do NOT ask for additional confirmation. The research contract confirmation IS the launch approval.
